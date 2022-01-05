@@ -18,10 +18,14 @@ class Path{
 }
 
 public class GreedyGnomesDynamic {
+	int maxGold = 0;
+	int rowLocation = 0;
+	int colLocation = 0;
 	boolean validMap;
 	int row, col;
 	String[][] map;
 	int[][] DPTable; // Table contain maximum value of gold collected at each coordinate
+	int[][] compareTable; // Table to compare for tracing back
 	
 	// Processing the map
 	public GreedyGnomesDynamic(String mapName) {
@@ -41,6 +45,7 @@ public class GreedyGnomesDynamic {
 			}
 			map = new String[row][col];
 			DPTable = new int[row][col];
+			compareTable = new int[row][col];
 			
 			// Storing the map data into a 2D array instance
 			for(int i = 0; i < row; i ++) {
@@ -75,6 +80,19 @@ public class GreedyGnomesDynamic {
 			}
 			else {
 				this.DPTable[0][0] = 0;
+			}
+			
+			//Making the compare table
+			for(int i = 0; i < row; i++) {
+				for(int j = 0; j < col; j++) {
+					if (parsable(this.map[i][j])) {
+						this.compareTable[i][j] = Integer.parseInt(this.map[i][j]);
+					} else if (this.map[i][j].contains("X")) {
+						this.compareTable[i][j] = -1;
+					} else {
+						this.compareTable[i][j] = 0;
+					}
+				}
 			}
 			
 		} catch (IOException e) {
@@ -119,12 +137,62 @@ public class GreedyGnomesDynamic {
 	
 	// Find the table coordinate with the most gold and least traverse steps
 	private void findEndPoint() {
+		int[][] mostGoldLocation = new int[2][this.col];
 		
+		//Getting the max gold on each column
+		for (int i = 0; i <= this.col - 1; i++) {
+			for (int j = 0; j <= this.row - 1; j++) {
+				if (this.DPTable[j][i] > mostGoldLocation[0][i]) {
+					mostGoldLocation[0][i] = this.DPTable[j][i];
+					mostGoldLocation[1][i] = j;
+				}
+			}
+		}
+		
+		// Finding the true max gold and its location
+		for (int i = 0; i <= this.col - 1; i++) {
+			if (this.maxGold < mostGoldLocation[0][i]) {
+				this.maxGold = mostGoldLocation[0][i];
+				this.rowLocation = mostGoldLocation[1][i];
+				this.colLocation = i;
+			} else if (this.maxGold == mostGoldLocation[0][i]) {
+				if ((this.rowLocation + this.colLocation) > (mostGoldLocation[1][i] + i)) {
+					this.maxGold = mostGoldLocation[0][i];
+					this.rowLocation = mostGoldLocation[1][i];
+					this.colLocation = i;
+				}
+			}
+		}
 	}
 	
 	// From the end point find the path to the starting point
-	private void traceBack() {
+	private void traceback() {
+		StringBuilder str = new StringBuilder();
+		int rowLocation = this.rowLocation;
+		int colLocation = this.colLocation;
+		int maxGold = this.maxGold;
 		
+		
+		while (rowLocation > 0 || colLocation > 0) {
+			maxGold = this.DPTable[rowLocation][colLocation] - this.compareTable[rowLocation][colLocation];
+			if (colLocation == 0) {
+				rowLocation--;
+				str.insert(0,'D');
+			} else if (rowLocation == 0) {
+				colLocation--;
+				str.insert(0,'R');
+			} else {
+				if (maxGold == this.DPTable[rowLocation - 1][colLocation]) {
+					rowLocation--;
+					str.insert(0, 'D');
+				} else {
+					colLocation--;
+					str.insert(0, 'R');
+				}
+			}
+		}
+		
+		System.out.println("The Path to mine max gold: " + str);
 	}
 	
 	private boolean isMoveable(int row, int col) { // if this method returns false then exhaustive has reached the end of a path
@@ -161,6 +229,7 @@ public class GreedyGnomesDynamic {
 
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
+		long startTime = System.nanoTime(); // Indicating start time
 		GreedyGnomesDynamic gnomeMap = new GreedyGnomesDynamic(args[0]);
 		if (!gnomeMap.validMap) {
 			System.out.println("This map cannot be processed! Please try again with a different map.");
@@ -174,6 +243,11 @@ public class GreedyGnomesDynamic {
 				}
 				System.out.println();
 			}
+			System.out.println();
+			gnomeMap.findEndPoint();
+			gnomeMap.traceback();
+			System.out.println("Max Gold: " + gnomeMap.maxGold);
+			System.out.println("Time elapsed: " + ((System.nanoTime() - startTime) / 1000000) + " milliseconds");// Measuring total time of algorithm
 		}
 	}
 
