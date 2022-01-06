@@ -137,26 +137,26 @@ public class GreedyGnomesDynamic {
 	
 	// Find the table coordinate with the most gold and least traverse steps
 	private void findEndPoint() {
-		int[][] mostGoldLocation = new int[2][this.col];
+		int[][] mostGoldLocation = new int[2][this.col]; // a 2D array to store max gold of each column and its row location
 		
 		//Getting the max gold on each column
-		for (int i = 0; i <= this.col - 1; i++) {
+		for (int i = 0; i <= this.col - 1; i++) { //Traversing each column first
 			for (int j = 0; j <= this.row - 1; j++) {
-				if (this.DPTable[j][i] > mostGoldLocation[0][i]) {
-					mostGoldLocation[0][i] = this.DPTable[j][i];
-					mostGoldLocation[1][i] = j;
+				if (this.DPTable[j][i] > mostGoldLocation[0][i]) { //
+					mostGoldLocation[0][i] = this.DPTable[j][i]; //save the max gold on this column
+					mostGoldLocation[1][i] = j; // save the location of the row
 				}
 			}
 		}
 		
 		// Finding the true max gold and its location
-		for (int i = 0; i <= this.col - 1; i++) {
+		for (int i = 0; i <= this.col - 1; i++) { // traversing through the 2D array
 			if (this.maxGold < mostGoldLocation[0][i]) {
-				this.maxGold = mostGoldLocation[0][i];
-				this.rowLocation = mostGoldLocation[1][i];
-				this.colLocation = i;
+				this.maxGold = mostGoldLocation[0][i]; // save the new max gold
+				this.rowLocation = mostGoldLocation[1][i]; //save its row
+				this.colLocation = i; // save its column
 			} else if (this.maxGold == mostGoldLocation[0][i]) {
-				if ((this.rowLocation + this.colLocation) > (mostGoldLocation[1][i] + i)) {
+				if ((this.rowLocation + this.colLocation) > (mostGoldLocation[1][i] + i)) { // return the location that uses less steps
 					this.maxGold = mostGoldLocation[0][i];
 					this.rowLocation = mostGoldLocation[1][i];
 					this.colLocation = i;
@@ -173,11 +173,11 @@ public class GreedyGnomesDynamic {
 		int maxGold = this.maxGold;
 		
 		
-		while (rowLocation > 0 || colLocation > 0) {
-			maxGold = this.DPTable[rowLocation][colLocation] - this.compareTable[rowLocation][colLocation];
+		while (rowLocation > 0 || colLocation > 0) { // From the max gold location, traverse back to the row 0 column 0
+			maxGold = this.DPTable[rowLocation][colLocation] - this.compareTable[rowLocation][colLocation]; 
 			if (colLocation == 0) {
 				rowLocation--;
-				str.insert(0,'D');
+				str.insert(0,'D'); // append to the start of the string
 			} else if (rowLocation == 0) {
 				colLocation--;
 				str.insert(0,'R');
@@ -193,26 +193,6 @@ public class GreedyGnomesDynamic {
 		}
 		
 		System.out.println("The Path to mine max gold: " + str);
-	}
-	
-	private boolean isMoveable(int row, int col) { // if this method returns false then exhaustive has reached the end of a path
-		try { // A runtime error may occur and to debug it we use try-catch technique
-			// If the next column and row are rocks
-			if ((this.map[row + 1][col].contains("X") && this.map[row][col + 1].contains("X"))) { 
-				return false; 
-			} else return true;
-		} catch (ArrayIndexOutOfBoundsException e) { 
-			// if the current location is at the bottom right end of the map
-			if (row == this.row - 1 && col == this.col - 1) {
-				return false;
-			// if the current location is at the last column and next row is a rock
-			} else if ((col == this.col - 1) && this.map[row + 1][col].contains("X")) {
-				return false;
-			// if the current location is at the last row and next column is a rock
-			} else if ((row == this.row - 1) && this.map[row][col + 1].contains("X")) {
-				return false;
-			} else return true;
-		}
 	}
 	
 	public boolean parsable(String intToConvert) {
@@ -234,15 +214,17 @@ public class GreedyGnomesDynamic {
 		if (!gnomeMap.validMap) {
 			System.out.println("This map cannot be processed! Please try again with a different map.");
 		} else {
-			Path bestPath = new Path();
 			gnomeMap.dynamicTableFill(0, 0); // call the dynamic algorithm that fills the table
 			// print table, remove when finished
-			for(int i = 0; i < gnomeMap.row; i++) {
-				for(int j = 0; j < gnomeMap.col; j++) {
-					System.out.print(gnomeMap.DPTable[i][j] + " ");
-				}
-				System.out.println();
-			}
+			// Remove comment if want to see table
+			
+//			for(int i = 0; i < gnomeMap.row; i++) {
+//				for(int j = 0; j < gnomeMap.col; j++) {
+//					System.out.print(gnomeMap.DPTable[i][j] + " ");
+//				}
+//				System.out.println();
+//			}
+			
 			System.out.println();
 			gnomeMap.findEndPoint();
 			gnomeMap.traceback();
