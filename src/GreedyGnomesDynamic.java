@@ -193,6 +193,7 @@ public class GreedyGnomesDynamic {
 		}
 		
 		System.out.println("The Path to mine max gold: " + str);
+		System.out.println("Number of steps: " + str.length());
 	}
 	
 	public boolean parsable(String intToConvert) {
@@ -224,13 +225,12 @@ public class GreedyGnomesDynamic {
 //				}
 //				System.out.println();
 //			}
+//			System.out.println();
 			
-			System.out.println();
 			gnomeMap.findEndPoint();
 			gnomeMap.traceback();
 			System.out.println("Max Gold: " + gnomeMap.maxGold);
 			System.out.println("Time elapsed: " + ((System.nanoTime() - startTime) / 1000000) + " milliseconds");// Measuring total time of algorithm
 		}
 	}
-
 }
